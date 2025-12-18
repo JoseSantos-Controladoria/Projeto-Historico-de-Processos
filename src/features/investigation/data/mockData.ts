@@ -93,6 +93,28 @@ export const MOCK_DOSSIERS: EmployeeDossier[] = [
         registeredBy: "Pedro Santos"
       }
     ]
+  },
+  {
+    id: "4",
+    name: "Juliana Mendes",
+    cpf: "555.666.777-88",
+    matricula: "MAT-4050",
+    photoUrl: undefined,
+    role: "Coordenadora de Marketing",
+    department: "Marketing",
+    manager: "Fernanda Lima",
+    status: "Ativo",
+    admissionDate: "2022-03-15",
+    email: "juliana.mendes@workongroup.com.br",
+    riskLevel: "Baixo",
+    riskFactors: [],
+    lastUpdate: "2025-05-30T10:45:00Z",
+    pointHistory: [
+      { month: "Mai/2025", absences: 0, delaysMinutes: 0, overtimeMinutes: 90, status: "Normal" },
+      { month: "Abr/2025", absences: 0, delaysMinutes: 0, overtimeMinutes: 120, status: "Normal" }
+    ],
+    occurrences: []
+   
   }
 ];
 
@@ -114,9 +136,9 @@ export const MOCK_PROCESSES: Process[] = [
     task_startdatetime: "2025-12-15 17:53:51",
     task_enddatetime: "2025-12-15 17:57:12",
     executor_userid: 2654.0,
-    executor_name: "Michele Santos",
-    executor_email: "michele.santos@workongroup.com.br",
-    executor_username: "michele.santos",
+    executor_name: "Maria Mustafa",
+    executor_email: "maria.mustafa@workongroup.com.br",
+    executor_username: "maria.mustafa",
     employee_id: "1",
     reportlink: "https://workongroup.zeev.it/2.0/audit?c=eaBKhIga%2FfDNREtMIWHjbs1lNjTe30tBPv4%2B5bizUUnfqrjTWfuS7BipUadc2CF7Olcj5KZ0VLCHcRWOD3Z2K%2BDzO0rCfqj9pCzzO9BFO6Y%3D"
   },
@@ -214,5 +236,29 @@ export const MOCK_PROCESSES: Process[] = [
     employee_id: "3",
     reportlink: "https://workongroup.zeev.it/2.0/audit?c=eaBKhIga%2FfDNREtMIWHjbs1lNjTe30tBPv4%2B5bizUUnfqrjTWfuS7BipUadc2CF7Olcj5KZ0VLCHcRWOD3Z2K%2BDzO0rCfqj9pCzzO9BFO6Y%3D"
   
+  },
+
+  {
+    id: 408167.0,
+    requestname: "P4.003 - Revisão de Políticas Internas",
+    setor: "P4",
+    requester_setor: "Compliance",
+    requester_setor_id: 2785.0,
+    requester_cargo: "Analista de Compliance",
+    requester_cargo_id: 1478.0,
+    flow_name: "P4.003 - Revisão de Políticas Internas",
+    task_instance_id: 2419798.0,
+    task_id: 39489.0,
+    task_name: "T05 - Atualizar Políticas",
+    task_type: "taskmanual",
+    task_result: "Em Andamento",
+    task_startdatetime: "2025-12-12 13:00:00",
+    task_enddatetime: null,
+    executor_userid: 2659.0,
+    executor_name: "Fernanda Lima",
+    executor_email: "fernanda.lima@workongroup.com.br",
+    executor_username: "fernanda.lima",
+    employee_id: "4",
+    reportlink: "https://workongroup.zeev.it/2.0/audit?c=eaBKhIga%2FfDNREtMIWHjbs1lNjTe30tBPv4%2B5bizUUnfqrjTWfuS7BipUadc2CF7Olcj5KZ0VLCHcRWOD3Z2K%2BDzO0rCfqj9pCzzO9BFO6Y%3D"
   }
 ];
