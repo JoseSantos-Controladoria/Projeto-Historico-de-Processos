@@ -1,146 +1,48 @@
-import { useState, useCallback } from "react";
-import { EmployeeDossier, Process } from "../types";
-import { MOCK_DOSSIERS, MOCK_PROCESSES } from "../data/mockData";
+// src/features/investigation/hooks/useInvestigation.ts
+import { useState, useCallback } from 'react';
+import { ProcessDTO } from '../types'; // Certifique-se que o DTO está atualizado no Front também
 
-
-interface UseInvestigationReturn {
-  dossier: EmployeeDossier | null;
-  processes: Process[];
-  loading: boolean;
-  error: string | null;
-  searchDossier: (query: string) => Promise<void>;
-  searchProcesses: (filters: ProcessFilters) => Promise<void>;
-  clearDossier: () => void;
-  clearProcesses: () => void;
-}
-
-interface ProcessFilters {
-  employeeName?: string;
-  executorName?: string;
-  startDateStart?: string;
-  startDateEnd?: string;
-  taskType?: string;
-  requesterSetor?: string;
-  keyword?: string;
-}
-
-export function useInvestigation(): UseInvestigationReturn {
-  const [dossier, setDossier] = useState<EmployeeDossier | null>(null);
-  const [processes, setProcesses] = useState<Process[]>([]);
-  const [loading, setLoading] = useState(false);
+export const useInvestigation = () => {
+  const [data, setData] = useState<ProcessDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const searchDossier = useCallback(async (query: string) => {
+  // Função para buscar os dados
+  const searchProcesses = useCallback(async (term: string) => {
+    // Se o termo for vazio, limpa a lista e não busca
+    if (!term.trim()) {
+      setData([]);
+      return;
+    }
 
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
-    setDossier(null);
 
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        const term = query.toLowerCase().trim();
+    try {
+      // URL do Backend que acabamos de criar
+      // DICA DE STAFF: Em produção, isso viria de uma variável de ambiente (import.meta.env.VITE_API_URL)
+      const response = await fetch(`http://localhost:3000/api/investigation/search?q=${term}`);
 
-        const found = MOCK_DOSSIERS.find((emp) => 
-          emp.name.toLowerCase().includes(term) ||
-          emp.cpf.includes(term) ||
-          emp.matricula.toLowerCase().includes(term) ||
-          emp.email.toLowerCase().includes(term)
-        );
+      if (!response.ok) {
+        throw new Error(`Erro na API: ${response.statusText}`);
+      }
 
-        if (found) {
-          setDossier(found);
-        } else {
-          setError("Nenhum colaborador encontrado com os dados informados.");
-        }
-
-        setLoading(false);
-        resolve();
-      }, 1500);
-    });
-  }, []);
-
-  const searchProcesses = useCallback(async (filters: ProcessFilters) => {
-    setLoading(true);
-    setError(null);
-    setProcesses([]);
-
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        let filtered = MOCK_PROCESSES;
-
-        if (filters.employeeName) {
-          // Encontrar funcionários que correspondem ao nome
-          const matchingEmployeeIds = MOCK_DOSSIERS
-            .filter(emp => emp.name.toLowerCase().includes(filters.employeeName!.toLowerCase()))
-            .map(emp => emp.id);
-          
-          // Filtrar processos que pertencem a esses funcionários
-          filtered = filtered.filter(p => p.employee_id && matchingEmployeeIds.includes(p.employee_id));
-        }
-
-        if (filters.executorName) {
-          filtered = filtered.filter(p => 
-            p.executor_name.toLowerCase().includes(filters.executorName!.toLowerCase())
-          );
-        }
-
-        if (filters.startDateStart) {
-          filtered = filtered.filter(p => 
-            new Date(p.task_startdatetime) >= new Date(filters.startDateStart!)
-          );
-        }
-
-        if (filters.startDateEnd) {
-          filtered = filtered.filter(p => 
-            new Date(p.task_startdatetime) <= new Date(filters.startDateEnd!)
-          );
-        }
-
-        if (filters.taskType) {
-          filtered = filtered.filter(p => 
-            p.task_type.toLowerCase().includes(filters.taskType!.toLowerCase())
-          );
-        }
-
-        if (filters.requesterSetor) {
-          filtered = filtered.filter(p => 
-            p.requester_setor.toLowerCase().includes(filters.requesterSetor!.toLowerCase())
-          );
-        }
-
-        if (filters.keyword) {
-          filtered = filtered.filter(p => 
-            p.requestname.toLowerCase().includes(filters.keyword!.toLowerCase()) ||
-            p.task_name.toLowerCase().includes(filters.keyword!.toLowerCase()) ||
-            p.flow_name.toLowerCase().includes(filters.keyword!.toLowerCase())
-          );
-        }
-
-        setProcesses(filtered);
-        setLoading(false);
-        resolve();
-      }, 1000);
-    });
-  }, []);
-
-  const clearDossier = useCallback(() => {
-    setDossier(null);
-    setError(null);
-  }, []);
-
-  const clearProcesses = useCallback(() => {
-    setProcesses([]);
-    setError(null);
+      const jsonData = await response.json();
+      setData(jsonData);
+      
+    } catch (err) {
+      console.error('Erro ao buscar processos:', err);
+      setError('Não foi possível carregar os dados. Verifique a conexão com o servidor.');
+      setData([]); // Limpa dados antigos em caso de erro
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   return {
-    dossier,
-    processes,
-    loading,
+    data,
+    isLoading,
     error,
-    searchDossier,
-    searchProcesses,
-    clearDossier,
-    clearProcesses
+    searchProcesses
   };
-}
+};

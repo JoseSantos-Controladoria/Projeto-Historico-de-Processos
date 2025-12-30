@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Process } from '../types';
 import { StatusBadge } from './StatusBadge';
 import { 
   Calendar, 
   User, 
   Building2, 
-  ExternalLink, 
   ChevronDown, 
   ChevronUp,
-  FileText 
+  FileText,
+  Clock,
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 
 interface ProcessItemProps {
@@ -18,12 +20,48 @@ interface ProcessItemProps {
   employeeName?: string | null;
 }
 
+const formatDateSafely = (dateString: string | null | undefined, includeTime = false) => {
+  if (!dateString) return '-';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
+    return includeTime 
+      ? date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) 
+      : date.toLocaleDateString('pt-BR');
+  } catch (error) {
+    return '-';
+  }
+};
+
 export const ProcessItem: React.FC<ProcessItemProps> = ({ 
   process, 
   isExpanded, 
   onToggle, 
   employeeName 
 }) => {
+  const [history, setHistory] = useState<Process[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded && !dataFetched) {
+      const fetchHistory = async () => {
+        setLoadingHistory(true);
+        try {
+          const response = await fetch(`http://localhost:3000/api/investigation/history/${process.id}`);
+          const data = await response.json();
+          setHistory(data);
+          setDataFetched(true);
+        } catch (error) {
+          console.error("Erro ao buscar histórico:", error);
+        } finally {
+          setLoadingHistory(false);
+        }
+      };
+      fetchHistory();
+    }
+  }, [isExpanded, process.id, dataFetched]);
+
   return (
     <div 
       className={`group bg-white rounded-xl border transition-all duration-300 overflow-hidden ${
@@ -32,111 +70,127 @@ export const ProcessItem: React.FC<ProcessItemProps> = ({
           : 'border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md'
       }`}
     >
-      {/* --- Cabeçalho Clicável do Card --- */}
-      <div 
-        onClick={onToggle}
-        className="p-5 cursor-pointer flex flex-col gap-4"
-      >
-        {/* Linha Superior: ID e Status */}
+      {/* --- Cabeçalho Clicável --- */}
+      <div onClick={onToggle} className="p-5 cursor-pointer flex flex-col gap-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600'} transition-colors`}>
+            <div className={`p-2 rounded-lg ${isExpanded ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'} transition-colors`}>
               <FileText className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-800 leading-tight group-hover:text-blue-700 transition-colors">
-                {process.requestname}
+              {/* ✅ MUDANÇA 1: Título agora é o Nome do Fluxo (flow_name) */}
+              <h3 className="text-base font-bold text-slate-800 leading-tight">
+                {process.flow_name}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5 font-mono">
-                ID: {process.id} • {process.flow_name}
-              </p>
-            </div>
-          </div>
-          <StatusBadge status={process.task_result} />
-        </div>
-
-        {/* Grid de Informações (Layout Estilo Dashboard) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
-          
-          {/* Coluna 1: Tarefa Atual */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tarefa Atual</span>
-            <span className="text-sm font-medium text-slate-700 truncate" title={process.task_name}>
-              {process.task_name}
-            </span>
-          </div>
-
-          {/* Coluna 2: Executor */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Executor</span>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-600">
-                {process.executor_name.charAt(0)}
-              </div>
-              <span className="text-sm text-slate-600 truncate">{process.executor_name}</span>
-            </div>
-          </div>
-
-          {/* Coluna 3: Setor/Colaborador */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-              {employeeName ? 'Referente a' : 'Setor Solicitante'}
-            </span>
-            <div className="flex items-center gap-1.5 text-slate-600">
-              {employeeName ? <User className="w-3.5 h-3.5" /> : <Building2 className="w-3.5 h-3.5" />}
-              <span className="text-sm truncate">
-                {employeeName || process.requester_setor}
-              </span>
-            </div>
-          </div>
-
-          {/* Coluna 4: Data e Ação (Seta) */}
-          <div className="flex flex-col gap-1 relative">
-            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Início</span>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-slate-600">
-                <Calendar className="w-3.5 h-3.5" />
-                <span className="text-sm">
-                  {new Date(process.task_startdatetime).toLocaleDateString()}
-                </span>
-              </div>
               
-              {/* Seta indicativa */}
-              <div className="text-slate-300 group-hover:text-blue-500 transition-colors">
-                {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              <div className="flex items-center gap-2 mt-0.5">
+                {/* ✅ MUDANÇA 2: Subtítulo mostra ID e Versão (requestname) */}
+                <p className="text-xs text-slate-500 font-mono">
+                  ID: {process.id} • Ref: {process.requestname}
+                </p>
+                
+                {employeeName && (
+                  <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-medium border border-slate-200">
+                    Func: {employeeName}
+                  </span>
+                )}
               </div>
             </div>
           </div>
+          <StatusBadge status={process.task_result as any} />
         </div>
+
+        {/* Resumo (Visível quando fechado) */}
+        {!isExpanded && (
+          <div className="flex items-center gap-6 text-sm text-slate-600 mt-2 pl-12">
+            <div className="flex items-center gap-2" title="Executor Atual">
+               <User className="w-4 h-4 text-slate-400" />
+               <span>{process.executor_name || 'Sistema'}</span>
+            </div>
+            <div className="flex items-center gap-2" title="Setor Solicitante">
+               <Building2 className="w-4 h-4 text-slate-400" />
+               <span>{process.requester_setor || 'N/A'}</span>
+            </div>
+            <div className="flex items-center gap-2" title="Data de Início">
+               <Calendar className="w-4 h-4 text-slate-400" />
+               <span>{formatDateSafely(process.task_startdatetime)}</span>
+            </div>
+            <div className="ml-auto text-slate-400">
+               <ChevronDown className="w-5 h-5" />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* --- Área Expandida (Detalhes & Ações) --- */}
+      {/* --- Área Expandida: TIMELINE --- */}
       {isExpanded && (
-        <div className="bg-slate-50 border-t border-slate-200 px-5 py-4 animate-in slide-in-from-top-2 duration-200">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-slate-600">
-              <p>
-                <span className="font-semibold">Tipo da Tarefa:</span> {process.task_type}
-              </p>
-              {process.task_enddatetime && (
-                <p className="mt-1">
-                  <span className="font-semibold">Concluído em:</span> {new Date(process.task_enddatetime).toLocaleString()}
-                </p>
-              )}
-            </div>
-
-            {process.reportlink && (
-              <a
-                href={process.reportlink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 text-slate-700 hover:text-blue-600 hover:border-blue-300 hover:shadow-sm rounded-lg transition-all text-sm font-medium"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Ver Relatório de Auditoria
-              </a>
-            )}
+        <div className="bg-slate-50 border-t border-slate-200 px-8 py-6 animate-in slide-in-from-top-2">
+          
+          <div className="flex items-center justify-between mb-6">
+            <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Linha do Tempo</h4>
+            <ChevronUp className="w-5 h-5 text-slate-400 cursor-pointer" onClick={onToggle} />
           </div>
+
+          {loadingHistory ? (
+            <div className="flex flex-col items-center justify-center py-8 text-slate-500 gap-2">
+              <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+              <span className="text-sm">Carregando histórico completo...</span>
+            </div>
+          ) : (
+            <div className="relative border-l-2 border-slate-200 ml-3 space-y-8 pb-2">
+              {history.map((step, index) => {
+                const isCompleted = !!step.task_enddatetime;
+                return (
+                  <div key={index} className="relative pl-8">
+                    {/* Bolinha da Timeline */}
+                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 ${
+                      isCompleted ? 'bg-green-500 border-green-500' : 'bg-white border-blue-500'
+                    }`}>
+                      {isCompleted && <CheckCircle2 className="w-3 h-3 text-white absolute top-0 left-0" />}
+                    </div>
+
+                    {/* Conteúdo do Passo */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800 text-sm">{step.task_name}</span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 font-medium">
+                          {step.task_type}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
+                        <div className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {step.executor_name || 'Sistema'}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />
+                          {step.requester_setor || 'N/A'}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs mt-1 font-mono text-slate-500">
+                         <Clock className="w-3 h-3" />
+                         <span>Início: {formatDateSafely(step.task_startdatetime, true)}</span>
+                         {step.task_enddatetime && (
+                           <>
+                             <span className="text-slate-300">|</span>
+                             <span className="text-green-600 font-medium">Fim: {formatDateSafely(step.task_enddatetime, true)}</span>
+                           </>
+                         )}
+                      </div>
+                      
+                      {step.reportlink && (
+                        <a href={step.reportlink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-xs mt-1 w-fit">
+                          Ver Evidência
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -1,60 +1,87 @@
-import React, { useState } from "react";
-import { Process } from "../types";
-import { MOCK_DOSSIERS } from "../data/mockData";
-import { ProcessItem } from "./ProcessItem";
-import { FileSearch } from "lucide-react";
+// src/features/investigation/components/ProcessList.tsx
+import React, { useState } from 'react';
+import { Process } from '../types';
+import { ProcessItem } from './ProcessItem';
+import { FileSearch, AlertCircle, Loader2 } from 'lucide-react';
 
 interface ProcessListProps {
-  processes: Process[];
+  data: Process[];
+  isLoading: boolean;
+  error?: string | null;
 }
 
-export function ProcessList({ processes }: ProcessListProps) {
-  // Estado para controlar qual card está aberto (Accordion style)
+export const ProcessList: React.FC<ProcessListProps> = ({ 
+  data, 
+  isLoading, 
+  error 
+}) => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  // Helper para buscar nome (poderia ser um hook separado em apps reais)
-  const getEmployeeName = (employeeId?: string) => {
-    if (!employeeId) return null;
-    const employee = MOCK_DOSSIERS.find(emp => emp.id === employeeId);
-    return employee ? employee.name : null;
+  const handleToggle = (id: number) => {
+    setExpandedId((prev) => (prev === id ? null : id));
   };
 
-  // Estado Vazio (Empty State) bonito
-  if (processes.length === 0) {
+  // 1. Loading
+  if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-dashed border-slate-300">
-        <div className="p-4 bg-slate-50 rounded-full mb-4">
-          <FileSearch className="w-8 h-8 text-slate-400" />
+      <div className="flex flex-col gap-3 mt-4">
+        <div className="flex items-center gap-2 text-blue-600 mb-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span className="text-sm font-medium">Buscando dados...</span>
         </div>
-        <h3 className="text-lg font-medium text-slate-900">Nenhum processo encontrado</h3>
-        <p className="text-slate-500 text-sm mt-1 max-w-xs text-center">
-          Tente ajustar os filtros de busca para encontrar o que você precisa.
-        </p>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse border border-slate-200" />
+        ))}
       </div>
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Cabeçalho da Lista (Opcional, mas ajuda na organização visual) */}
-      <div className="flex items-center justify-between px-2 mb-2">
-        <span className="text-sm font-medium text-slate-500">
-          Mostrando {processes.length} resultados
-        </span>
+  // 2. Erro
+  if (error) {
+    return (
+      <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-700">
+        <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+        <div>
+          <h3 className="font-semibold text-sm">Erro ao carregar</h3>
+          <p className="text-sm opacity-90 mt-1">{error}</p>
+        </div>
       </div>
+    );
+  }
 
-      {/* Renderização da Lista */}
-      <div className="flex flex-col gap-3">
-        {processes.map((process) => (
-          <ProcessItem
-            key={process.id}
-            process={process}
-            isExpanded={expandedId === process.id}
-            onToggle={() => setExpandedId(expandedId === process.id ? null : process.id)}
-            employeeName={getEmployeeName(process.employee_id)}
-          />
-        ))}
+  // 🚨 A CURA DA TELA BRANCA ESTÁ AQUI 🚨
+  // Se 'data' for undefined, usamos [] (array vazio)
+  const safeData = data || [];
+
+  // 3. Vazio
+  // Agora usamos safeData.length, que nunca falha
+  if (safeData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+          <FileSearch className="w-8 h-8 opacity-50" />
+        </div>
+        <p className="text-lg font-medium text-slate-600">Nenhum processo encontrado</p>
       </div>
+    );
+  }
+
+  // 4. Lista
+  return (
+    <div className="flex flex-col gap-3 mt-4">
+      <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 px-1">
+        Resultados: {safeData.length}
+      </div>
+      
+      {safeData.map((process) => (
+        <ProcessItem
+          key={process.id}
+          process={process}
+          isExpanded={expandedId === process.id}
+          onToggle={() => handleToggle(process.id)}
+          employeeName={null} 
+        />
+      ))}
     </div>
   );
-}
+};

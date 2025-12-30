@@ -1,81 +1,63 @@
-import { useState, FormEvent } from "react";
-import { Search, Loader2, ShieldAlert } from "lucide-react";
+import React, { useState } from 'react';
+import { Search, Sparkles } from 'lucide-react'; // Adicionei um ícone extra opcional
 
 interface SearchHeroProps {
   onSearch: (term: string) => void;
-  loading: boolean;
-  error: string | null;
 }
 
-export function SearchHero({ onSearch, loading, error }: SearchHeroProps) {
-  const [term, setTerm] = useState("");
+export const SearchHero: React.FC<SearchHeroProps> = ({ onSearch }) => {
+  const [inputValue, setInputValue] = useState('');
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (term.trim()) {
-      onSearch(term);
+    if (inputValue.trim() && typeof onSearch === 'function') {
+      onSearch(inputValue);
     }
   };
 
   return (
-    <div className="bg-slate-900 rounded-2xl p-8 md:p-12 text-center shadow-2xl relative overflow-hidden">
-      {/* Background Decorativo (Pattern) */}
-      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-red-600 rounded-full blur-[100px] transform translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute left-0 bottom-0 w-48 h-48 bg-blue-600 rounded-full blur-[80px] transform -translate-x-1/2 translate-y-1/2"></div>
+    // VOLTOU O VISUAL DE CARD:
+    // bg-white: Fundo branco
+    // rounded-2xl: Bordas bem arredondadas
+    // shadow-sm/border: Para dar o efeito de relevo
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center transition-all hover:shadow-md">
+      
+      <div className="flex justify-center mb-4">
+        <div className="p-3 bg-blue-50 rounded-full">
+           <Sparkles className="w-6 h-6 text-blue-600" />
+        </div>
       </div>
 
-      <div className="relative z-10 max-w-2xl mx-auto space-y-6">
-        <div className="flex flex-col items-center gap-3">
-          <div className="p-3 bg-slate-800 rounded-xl border border-slate-700 shadow-inner">
-            <ShieldAlert className="w-8 h-8 text-red-500" />
-          </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">
-            Histórico de Processos
-          </h1>
-          <p className="text-slate-400">
-            Digite o Nome, CPF ou Matrícula para acessar o Histórico Completo.
-            <br />
-            <span className="text-xs text-slate-500 uppercase tracking-widest mt-2 block">
-              Ambiente Auditado &bull; Acesso Restrito
-            </span>
-          </p>
-        </div>
+      <h1 className="text-2xl font-bold text-slate-900 mb-2">
+        Investigação de Processos
+      </h1>
+      
+      <p className="text-slate-500 mb-8 max-w-lg mx-auto">
+        Digite o <span className="font-medium text-slate-700">Nome</span>, <span className="font-medium text-slate-700">CPF</span> ou <span className="font-medium text-slate-700">ID</span> para visualizar o dossiê completo.
+      </p>
 
-        <form onSubmit={handleSubmit} className="relative group">
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            {loading ? (
-              <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
-            ) : (
-              <Search className="w-5 h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
-            )}
-          </div>
+      <form onSubmit={handleSubmit} className="max-w-xl mx-auto relative">
+        <div className="relative group">
           <input
             type="text"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            disabled={loading}
-            placeholder="Ex: Carlos Souza ou 123.456..."
-            className="w-full h-14 pl-12 pr-4 bg-slate-800/50 border-2 border-slate-700 rounded-xl text-white placeholder:text-slate-500 focus:outline-none focus:border-red-500 focus:bg-slate-800 transition-all text-lg shadow-lg"
+            className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 placeholder:text-slate-400 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 focus:outline-none transition-all shadow-sm"
+            placeholder="Ex: Fabio Jose ou 307.815..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-          <button
-            type="submit"
-            disabled={loading || !term.trim()}
-            className="absolute right-2 top-2 bottom-2 px-6 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-          >
-            Investigar
-          </button>
-        </form>
-
-        {error && (
-          <div className="animate-in fade-in slide-in-from-top-2">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-              <ShieldAlert className="w-4 h-4" />
-              {error}
-            </div>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors">
+            <Search className="w-5 h-5" />
           </div>
-        )}
-      </div>
+          
+          {/* Botão de buscar agora fica oculto visualmente ou discreto, pois o Enter já envia */}
+          <button 
+             type="submit" 
+             className="absolute right-2 top-2 bottom-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+          >
+            Buscar
+          </button>
+        </div>
+      </form>
     </div>
   );
-}
+};
