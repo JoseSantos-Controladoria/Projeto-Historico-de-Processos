@@ -1,5 +1,5 @@
 import { pool } from '../config/database';
-// ✅ CORREÇÃO: Adicionamos ChartData na importação abaixo
+
 import { DashboardKPIs, ChartData } from '../types/Dashboard';
 
 export class DashboardRepository {
@@ -49,9 +49,7 @@ export class DashboardRepository {
     }
   }
 
-  // --- NOVOS MÉTODOS (Agora o ChartData vai funcionar!) ---
 
-  // 1. Evolução Mensal (Últimos 6 meses)
   async getEvolutionChart(): Promise<ChartData[]> {
     const query = `
       SELECT TO_CHAR(task_startdatetime, 'MM/YYYY') as label, COUNT(*) as value
@@ -64,7 +62,7 @@ export class DashboardRepository {
     return rows;
   }
 
-  // 2. Volume por Tipo de Processo (Top 5)
+
   async getProcessByFlowChart(): Promise<ChartData[]> {
     const query = `
       SELECT flow_name as label, COUNT(*) as value
@@ -78,7 +76,6 @@ export class DashboardRepository {
     return rows;
   }
 
-  // 3. Distribuição por Status
   async getStatusDistributionChart(): Promise<ChartData[]> {
     const query = `
       SELECT COALESCE(task_result, 'Em Andamento') as label, COUNT(*) as value
@@ -90,7 +87,6 @@ export class DashboardRepository {
     return rows;
   }
 
-  // 4. Top 5 Funcionários
   async getTopEmployeesList(): Promise<ChartData[]> {
     const query = `
       SELECT executor_name as label, COUNT(*) as value
@@ -105,7 +101,6 @@ export class DashboardRepository {
     return rows;
   }
 
-  // 5. Top 5 Setores
   async getTopSectorsList(): Promise<ChartData[]> {
     const query = `
       SELECT requester_setor as label, COUNT(*) as value

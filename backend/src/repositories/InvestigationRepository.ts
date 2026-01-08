@@ -1,12 +1,9 @@
 import { pool } from '../config/database'; 
-// CORREÇÃO: Importando do caminho correto que você me mostrou
 import { EmployeeEntity, ProcessStepEntity, PersonProfile } from '../types/Investigation'; 
 
 export class InvestigationRepository {
 
-  // 1. Busca o funcionário pelo NOME ou CPF (Master Data)
   async findEmployeesByName(term: string): Promise<EmployeeEntity[]> {
-    // Aumentamos o LIMIT para 100 e adicionamos a busca por CPF
     const query = `
       SELECT employee_name, external_id, personal_tax_id
       FROM zeev.tb_employee_master_data
@@ -16,20 +13,17 @@ export class InvestigationRepository {
       LIMIT 100
     `;
     
-    // O %term% permite buscar por partes do nome ou partes do CPF
     const values = [`%${term}%`];
     
     const { rows } = await pool.query<EmployeeEntity>(query, values);
     return rows;
   }
 
-  // 2. Busca IDs dos processos vinculados aos CPFs encontrados (Attributes)
   async findProcessIdsByTaxIds(taxIds: string[]): Promise<number[]> {
     if (taxIds.length === 0) return [];
 
     const placeholders = taxIds.map((_, i) => `$${i + 1}`).join(',');
     
-    // NOTA: Na tabela attributes o ID é 'instanceid' (tudo junto)
     const query = `
       SELECT DISTINCT instanceid 
       FROM zeev.tb_instance_attributes
@@ -42,13 +36,11 @@ export class InvestigationRepository {
     return rows.map(r => r.instanceid);
   }
 
-  // 3. Busca os detalhes dos steps (Steps)
   async findStepsByInstanceIds(instanceIds: number[]): Promise<ProcessStepEntity[]> {
     if (instanceIds.length === 0) return [];
 
     const placeholders = instanceIds.map((_, i) => `$${i + 1}`).join(',');
     
-    // NOTA: Na tabela steps o ID do processo é apenas 'id', mas o DTO espera 'instance_id'
     const query = `
       SELECT 
         s.id as instance_id, -- Alias para o DTO
@@ -86,17 +78,11 @@ export class InvestigationRepository {
     return rows;
   }
 
-  // ✨ NOVO MÉTODO: Buscar Pessoas Agrupadas
   async findPeople(term: string): Promise<PersonProfile[]> {
     const client = await pool.connect();
     
     try {
-      // 🏗️ ESTRATÉGIA:
-      // 1. A base é a tabela de Funcionários (tb_employees), que tem o cadastro completo.
-      // 2. Fazemos LEFT JOIN com steps para contar os processos.
-      // 3. Resultado: Lista todos os funcionários que batem com a busca, 
-      //    mostrando "0 processos" se não tiverem nada.
-      
+
       const query = `
         SELECT 
             e.personal_tax_id as cpf,      -- ⚠️ Verifique se no banco é 'personal_tax_id'

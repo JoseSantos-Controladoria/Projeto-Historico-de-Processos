@@ -1,4 +1,3 @@
-// DTO
 export interface ProcessDTO {
     id: number;                 
     requestname: string;
@@ -25,7 +24,7 @@ export interface ProcessDTO {
 export interface EmployeeEntity {
     employee_name: string;
     external_id: number;
-    personal_tax_id: string; // O CPF
+    personal_tax_id: string; 
 }
 
 export interface AttributeEntity {
@@ -59,8 +58,6 @@ export interface ProcessStepEntity {
     reportlink: string;
 }
 
-// src/types/Investigation.ts
-
 export interface InvestigationFilters {
   startDate?: string;
   endDate?: string;
@@ -71,8 +68,8 @@ export interface InvestigationFilters {
 
 export interface PersonProfile {
   name: string;
-  cpf: string; // Nossa chave primária lógica
+  cpf: string; 
   sector: string;
   role: string;
-  totalProcesses: number; // Para mostrar o badge (ex: "12 processos")
+  totalProcesses: number; 
 }

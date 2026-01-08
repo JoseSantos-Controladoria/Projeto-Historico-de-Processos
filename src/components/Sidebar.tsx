@@ -1,8 +1,6 @@
 import React from 'react';
-import { Users, FileText, ShieldAlert } from 'lucide-react'; // Adicionei um ícone extra para logo/marca
+import { Users, FileText, ShieldAlert } from 'lucide-react'; 
 
-// Definindo a tipagem aqui ou importando de um arquivo de types global
-// Para manter simples agora, vamos replicar o tipo, mas o ideal seria exportar TabType
 type TabType = 'dossiers' | 'processes';
 
 interface SidebarProps {
@@ -18,13 +16,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 h-screen fixed left-0 top-0 flex flex-col border-r border-slate-800">
-      {/* Logo Area */}
       <div className="p-6 flex items-center gap-3 text-white border-b border-slate-800 mb-6">
         <ShieldAlert className="w-8 h-8 text-blue-500" />
         <span className="font-bold text-lg tracking-tight">Investigação</span>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-4 space-y-2">
         {menuItems.map((item) => {
           const isActive = activeTab === item.id;
@@ -47,7 +43,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange }) => {
         })}
       </nav>
 
-      {/* Footer/User Area (Placeholder para dar um toque profissional) */}
       <div className="p-4 border-t border-slate-800">
         <div className="flex items-center gap-3 px-2 py-2">
           <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white">

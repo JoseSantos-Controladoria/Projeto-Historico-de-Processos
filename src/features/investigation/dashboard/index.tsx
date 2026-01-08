@@ -1,4 +1,3 @@
-import React from 'react';
 // ✅ CORREÇÃO: Agora importamos da pasta local './hooks'
 import { useDashboard } from './hooks/useDashboard'; 
 import { 

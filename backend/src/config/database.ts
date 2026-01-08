@@ -1,4 +1,3 @@
-// src/config/database.ts
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
@@ -9,7 +8,6 @@ if (!process.env.DB_HOST) {
   process.exit(1);
 }
 
-// O segredo está neste "export const"
 export const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,

@@ -12,11 +12,10 @@ export class DashboardController {
     try {
       const kpis = await this.repo.getKPIs();
       
-      // Formatação simples antes de enviar
       const formattedKPIs = {
         ...kpis,
-        rejectionRate: parseFloat(kpis.rejectionRate.toFixed(2)), // Arredonda 2 casas
-        avgCompletionTimeHours: Math.round(kpis.avgCompletionTimeHours) // Arredonda horas
+        rejectionRate: parseFloat(kpis.rejectionRate.toFixed(2)), 
+        avgCompletionTimeHours: Math.round(kpis.avgCompletionTimeHours) 
       };
 
       return res.json(formattedKPIs);
@@ -25,11 +24,10 @@ export class DashboardController {
       return res.status(500).json({ error: 'Erro interno ao calcular KPIs' });
     }
   }
-  // Adicione isso abaixo do getKPIs
 
   async getAnalytics(req: Request, res: Response) {
     try {
-      // Executa todas as queries em paralelo para ser MUITO rápido
+
       const [evolution, processByFlow, statusDistribution, topEmployees, topSectors] = await Promise.all([
         this.repo.getEvolutionChart(),
         this.repo.getProcessByFlowChart(),

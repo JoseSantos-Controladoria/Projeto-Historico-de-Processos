@@ -13,7 +13,6 @@ export const PersonGrid: React.FC<PersonGridProps> = ({ results, onSelectPerson,
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-        {/* Skeletons de carregamento */}
         {[1, 2, 3].map((i) => (
           <div key={i} className="h-40 rounded-xl bg-gray-100 animate-pulse border border-gray-200" />
         ))}
@@ -22,7 +21,7 @@ export const PersonGrid: React.FC<PersonGridProps> = ({ results, onSelectPerson,
   }
 
   if (results.length === 0) {
-    return null; // Ou uma mensagem de "Ninguém encontrado"
+    return null; 
   }
 
   return (
@@ -34,7 +33,7 @@ export const PersonGrid: React.FC<PersonGridProps> = ({ results, onSelectPerson,
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {results.map((person) => (
           <PersonCard 
-            key={person.cpf} // Usando CPF como chave única
+            key={person.cpf} 
             person={person}
             onClick={onSelectPerson}
           />

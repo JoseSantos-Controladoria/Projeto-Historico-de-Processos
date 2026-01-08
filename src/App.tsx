@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Investigation from './features/investigation';
 import { Dashboard } from './features/investigation/dashboard'; // ✅ Importamos o Dashboard
-import { LayoutDashboard, FileSearch, Settings, UserCircle } from 'lucide-react';
+import { LayoutDashboard, FileSearch } from 'lucide-react';
 
 function App() {
   // ✅ 1. Estado para controlar a navegação ('investigation' é o padrão)
@@ -45,25 +45,7 @@ function App() {
             <span className="font-medium text-sm">Dashboard</span>
           </div>
 
-          {/* BOTÃO CONFIGURAÇÕES (Sem função por enquanto) */}
-          <div className="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg cursor-pointer transition-all">
-            <Settings className="w-5 h-5" />
-            <span className="font-medium text-sm">Configurações</span>
-          </div>
-
         </nav>
-
-        <div className="p-4 border-t border-slate-800">
-           <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
-                 <UserCircle className="w-5 h-5 text-slate-300" />
-              </div>
-              <div className="text-xs">
-                 <p className="text-white font-medium">José Santos</p>
-                 <p className="text-slate-500">Analista de Dados</p>
-              </div>
-           </div>
-        </div>
       </aside>
 
       {/* --- ÁREA PRINCIPAL --- */}

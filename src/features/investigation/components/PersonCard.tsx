@@ -10,7 +10,6 @@ interface PersonCardProps {
 export const PersonCard: React.FC<PersonCardProps> = ({ person, onClick }) => {
   const hasProcesses = person.totalProcesses > 0;
 
-  // Função auxiliar para formatar CPF visualmente (se vier limpo do banco)
   const formatCPF = (cpf: string) => {
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
@@ -27,7 +26,6 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, onClick }) => {
         }
       `}
     >
-      {/* Badge de Contagem (Canto Superior Direito) */}
       <div className={`
         absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold
         ${hasProcesses 
@@ -41,9 +39,8 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, onClick }) => {
         </span>
       </div>
 
-      <div className="flex items-start gap-4 pr-24"> {/* pr-24 para não bater no badge */}
+      <div className="flex items-start gap-4 pr-24"> 
         
-        {/* Avatar / Iniciais */}
         <div className={`
           flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm
           ${hasProcesses 
@@ -54,26 +51,22 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, onClick }) => {
           {person.name.charAt(0).toUpperCase()}
         </div>
 
-        {/* Informações do Colaborador */}
         <div className="min-w-0 flex-1">
           <h3 className={`truncate text-sm font-bold ${hasProcesses ? 'text-gray-900' : 'text-gray-700'}`}>
             {person.name}
           </h3>
           
           <div className="mt-1 flex flex-col gap-1">
-            {/* CPF */}
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               <User size={12} />
               <span className="font-mono">{person.cpf.length === 11 ? formatCPF(person.cpf) : person.cpf}</span>
             </div>
 
-            {/* Cargo */}
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               <Briefcase size={12} />
               <span className="truncate">{person.role}</span>
             </div>
 
-            {/* Setor */}
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               <Building2 size={12} />
               <span className="truncate">{person.sector}</span>
@@ -82,7 +75,6 @@ export const PersonCard: React.FC<PersonCardProps> = ({ person, onClick }) => {
         </div>
       </div>
 
-      {/* Dica de Hover (Aparece só quando passa o mouse) */}
       <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">
          <span className={`text-xs font-medium transition-colors ${hasProcesses ? 'text-blue-600 group-hover:text-blue-700' : 'text-gray-400'}`}>
             {hasProcesses ? 'Ver Dossiê Completo →' : 'Ver Dados Cadastrais →'}
