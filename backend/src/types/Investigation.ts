@@ -58,3 +58,21 @@ export interface ProcessStepEntity {
     executor_username: string;
     reportlink: string;
 }
+
+// src/types/Investigation.ts
+
+export interface InvestigationFilters {
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+  flowName?: string;
+}
+
+
+export interface PersonProfile {
+  name: string;
+  cpf: string; // Nossa chave primária lógica
+  sector: string;
+  role: string;
+  totalProcesses: number; // Para mostrar o badge (ex: "12 processos")
+}

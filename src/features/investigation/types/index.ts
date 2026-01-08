@@ -28,3 +28,12 @@ export interface ProcessDTO {
 // Dizemos que 'Process' é a mesma coisa que 'ProcessDTO'.
 // Isso conserta o erro de importação sem quebrar o resto do seu código.
 export type Process = ProcessDTO;
+
+// ✨ NOVO TIPO: Perfil de Pessoa (para a busca de pessoas)
+export interface PersonProfile {
+  cpf: string;
+  name: string;
+  sector: string;
+  role: string;
+  totalProcesses: number;
+}

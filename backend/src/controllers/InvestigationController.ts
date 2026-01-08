@@ -1,12 +1,15 @@
 // src/controllers/InvestigationController.ts
 import { Request, Response } from 'express';
 import { InvestigationService } from '../services/InvestigationService';
+import { InvestigationRepository } from '../repositories/InvestigationRepository';
 
 export class InvestigationController {
   private service: InvestigationService;
+  private repository: InvestigationRepository;
 
   constructor() {
     this.service = new InvestigationService();
+    this.repository = new InvestigationRepository();
   }
 
   // O Express precisa que usemos arrow function aqui para manter o 'this' correto
@@ -38,6 +41,25 @@ export class InvestigationController {
     } catch (error) {
       console.error('Erro ao buscar histórico:', error);
       return res.status(500).json({ error: 'Erro interno ao buscar histórico' });
+    }
+  }
+
+  // ✨ NOVO MÉTODO: Endpoint para buscar pessoas
+  async searchPeople(req: Request, res: Response) {
+    try {
+      const { q } = req.query; // Espera algo como ?q=Fabio
+
+      if (!q || typeof q !== 'string') {
+        return res.status(400).json({ error: 'Termo de busca é obrigatório' });
+      }
+
+      // Chama o repositório
+      const results = await this.repository.findPeople(q);
+
+      return res.json(results);
+    } catch (error) {
+      console.error('Erro ao buscar pessoas:', error);
+      return res.status(500).json({ error: 'Erro interno ao buscar pessoas' });
     }
   }
 }

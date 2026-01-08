@@ -1,6 +1,6 @@
 import { pool } from '../config/database'; 
 // CORREÇÃO: Importando do caminho correto que você me mostrou
-import { EmployeeEntity, ProcessStepEntity } from '../types/Investigation'; 
+import { EmployeeEntity, ProcessStepEntity, PersonProfile } from '../types/Investigation'; 
 
 export class InvestigationRepository {
 
@@ -85,4 +85,58 @@ export class InvestigationRepository {
     const { rows } = await pool.query<ProcessStepEntity>(query, instanceIds);
     return rows;
   }
+
+  // ✨ NOVO MÉTODO: Buscar Pessoas Agrupadas
+  async findPeople(term: string): Promise<PersonProfile[]> {
+    const client = await pool.connect();
+    
+    try {
+      // 🏗️ ESTRATÉGIA:
+      // 1. A base é a tabela de Funcionários (tb_employees), que tem o cadastro completo.
+      // 2. Fazemos LEFT JOIN com steps para contar os processos.
+      // 3. Resultado: Lista todos os funcionários que batem com a busca, 
+      //    mostrando "0 processos" se não tiverem nada.
+      
+      const query = `
+        SELECT 
+            e.personal_tax_id as cpf,      -- ⚠️ Verifique se no banco é 'personal_tax_id'
+            e.employee_name as name,
+            e.department as sector,        -- O diagrama mostra uma coluna 'department' (texto)
+            e.job_title as role,           -- O diagrama mostra 'job_title'
+            COUNT(DISTINCT s.id) as "totalProcesses"
+        FROM zeev.tb_employees e
+        LEFT JOIN zeev.tb_instance_steps s ON s.personal_tax_id = e.personal_tax_id
+        WHERE 
+            e.employee_name ILIKE $1 
+            OR e.personal_tax_id ILIKE $1
+        GROUP BY 
+            e.personal_tax_id, 
+            e.employee_name, 
+            e.department, 
+            e.job_title
+        ORDER BY "totalProcesses" DESC, e.employee_name ASC
+        LIMIT 50;
+      `;
+
+      const searchTerm = `%${term}%`;
+      const { rows } = await client.query(query, [searchTerm]);
+      
+      return rows.map(row => ({
+        cpf: row.cpf,
+        name: row.name || 'Nome Desconhecido',
+        sector: row.sector || 'Setor N/A',
+        role: row.role || 'Colaborador',
+        totalProcesses: Number(row.totalProcesses || 0)
+      }));
+
+    } catch (error) {
+      console.error('Erro ao buscar pessoas na tb_employees:', error);
+      throw error; 
+    } finally {
+      client.release();
+    }
+  }
+
+  
 }
+
